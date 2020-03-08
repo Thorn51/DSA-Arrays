@@ -85,6 +85,32 @@ function main() {
 
   //Add an item to the array using the push method
   practiceArray.push(3);
+  practiceArray.push(15);
+  practiceArray.push(19);
+  practiceArray.push(45);
+  practiceArray.push(10);
 
-  console.log(practiceArray);
+  //Use the pop method to remove an item
+  practiceArray.pop(); //I would expect this to remove value 10, change the length to 4, capacity remains the same, pointer -> 3
+  practiceArray.pop(); //I would expect this to remove value 45, change the length to 3, capacity remains the same, pointer -> 3
+  practiceArray.pop(); //I would expect this to remove value 19, change the length to 2, capacity remains the same, pointer -> 3
+
+  console.log(
+    "Array Class ->",
+    practiceArray,
+    "First item in array ->",
+    practiceArray.get(0)
+  );
+
+  //Remove remaining values to clear array.
+  practiceArray.pop();
+  practiceArray.pop();
+
+  //Add new item
+  practiceArray.push("tauhida");
+
+  //Print first items
+  console.log("First item ->", practiceArray.get(0));
 }
+
+main();

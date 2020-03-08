@@ -1,7 +1,6 @@
 {
   "name": "03_dsa_arrays",
   "version": "1.0.0",
-  "description": "",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +14,7 @@
   "bugs": {
     "url": "https://github.com/Thorn51/DSA-Arrays/issues"
   },
-  "homepage": "https://github.com/Thorn51/DSA-Arrays#readme"
+  "homepage": "https://github.com/Thorn51/DSA-Arrays#readme",
+  "keywords": [],
+  "description": ""
 }
