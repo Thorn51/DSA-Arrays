@@ -1,4 +1,6 @@
-import memory from "./memory";
+const Memory = require("./memory");
+
+const memory = new Memory();
 
 class Array {
   //initialize array
@@ -74,4 +76,15 @@ class Array {
   }
 }
 
-Array.SIZE_RATIO = 3;
+function main() {
+  //Set capacity of Array
+  Array.SIZE_RATIO = 3;
+
+  //Create an instance of the Array class
+  const practiceArray = new Array();
+
+  //Add an item to the array using the push method
+  practiceArray.push(3);
+
+  console.log(practiceArray);
+}
