@@ -4,12 +4,15 @@ class Array {
   //initialize array
   constructor() {
     this.length = 0;
+    this._capacity = 0;
     this.ptr = memory.allocate(this.length);
   }
 
   //Add value to array by pushing
   push(value) {
-    this._resize(this.length + 1);
+    if (this.length >= this._capacity) {
+      this._resize((this.length + 1) * Array.SIZE_RATIO);
+    }
     memory.set(this.ptr + this.length, value);
     this.length++;
   }
@@ -23,5 +26,8 @@ class Array {
     }
     memory.copy(this.ptr, oldPtr, this.length);
     memory.free(oldPtr);
+    this._capacity = size;
   }
 }
+
+Array.SIZE_RATIO = 3;
