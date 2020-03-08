@@ -28,6 +28,14 @@ class Array {
     memory.free(oldPtr);
     this._capacity = size;
   }
+
+  //Retrieve a value by index
+  get(index) {
+    if (index < 0 || index >= this.length) {
+      throw new Error("Index error");
+    }
+    return memory.get(this.ptr + index);
+  }
 }
 
 Array.SIZE_RATIO = 3;
