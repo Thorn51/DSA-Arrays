@@ -110,7 +110,12 @@ function main() {
   practiceArray.push("tauhida");
 
   //Print first items
-  console.log("First item ->", practiceArray.get(0));
+  console.log(
+    "Array Class ->",
+    practiceArray,
+    "First item ->",
+    practiceArray.get(0)
+  );
 }
 
 main();
