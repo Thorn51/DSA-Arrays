@@ -4,7 +4,7 @@ Introduction module on data structures and algorithms including:
 
 - Recursive Algorithms
 - Big O Notation
-- **Working with Arrays** Current
+- **Working with Arrays** (current)
 - Working with Linked Lists
 - Working with Stacks and Queues
 - Working with Hash maps
