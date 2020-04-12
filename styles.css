@@ -1,0 +1,31 @@
+body {
+  width: 90%;
+  margin: 25px auto 75px auto;
+}
+
+pre {
+  background-color: black;
+  color: white;
+  display: block;
+  border: grey inset 5px;
+}
+
+h3 {
+  text-decoration: underline;
+}
+
+.bold {
+  font-weight: bolder;
+}
+
+.note {
+  background-color: lightgrey;
+  border: dotted black 2px;
+  padding: 15px;
+}
+
+.answer {
+  background-color: lightcyan;
+  border: dotted black 2px;
+  padding: 15px;
+}
