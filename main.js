@@ -1,121 +1,133 @@
-const Memory = require("./memory");
+console.log("DSA - Arrays");
 
-const memory = new Memory();
+import Array from "./array.js";
 
-class Array {
-  //initialize array
-  constructor() {
-    this.length = 0;
-    this._capacity = 0;
-    this.ptr = memory.allocate(this.length);
-  }
-
-  //Add value to array by pushing
-  push(value) {
-    if (this.length >= this._capacity) {
-      this._resize((this.length + 1) * Array.SIZE_RATIO);
-    }
-    memory.set(this.ptr + this.length, value);
-    this.length++;
-  }
-
-  //Allocate more memory for array
-  _resize(size) {
-    const oldPtr = this.ptr;
-    this.ptr = memory.allocate(size);
-    if (this.ptr === null) {
-      throw new Error("Out of memory");
-    }
-    memory.copy(this.ptr, oldPtr, this.length);
-    memory.free(oldPtr);
-    this._capacity = size;
-  }
-
-  //Retrieve a value by index
-  get(index) {
-    if (index < 0 || index >= this.length) {
-      throw new Error("Index error");
-    }
-    return memory.get(this.ptr + index);
-  }
-
-  //Remove a value from the end of the array
-  pop() {
-    if (this.length === 0) {
-      throw new Error("Index error");
-    }
-    const value = memory.get(this.ptr + this.length - 1);
-    this.length--;
-    return value;
-  }
-
-  //Insert value into array at a given index
-  insert(index, value) {
-    if (index < 0 || index >= this.length) {
-      throw new Error("Index error");
-    }
-    if (this.length >= this._capacity) {
-      this._resize((this.length + 1) * Array.SIZE_RATIO);
-    }
-    memory.copy(this.ptr + index + 1, this.ptr + index, this.length - index);
-    memory.set(this.ptr + index, value);
-    this.length++;
-  }
-
-  //Remove values from the array at a given index
-  remove(index) {
-    if (index < 0 || index >= this.length) {
-      throw new Error("Index error");
-    }
-    memory.copy(
-      this.ptr + index,
-      this.ptr + index + 1,
-      this.length - index - 1
-    );
-    this.length--;
-  }
-}
-
-function main() {
+function implementArray() {
   //Set capacity of Array
   Array.SIZE_RATIO = 3;
 
   //Create an instance of the Array class
-  const practiceArray = new Array();
+  console.log("1. Implement an array class from scratch");
+  const implementArray = new Array();
+  console.log(implementArray);
+}
 
+function explorePush() {
+  let pushArray = new Array();
+  //Set capacity of Array
+  Array.SIZE_RATIO = 3;
   //Add an item to the array using the push method
-  practiceArray.push(3);
-  practiceArray.push(15);
-  practiceArray.push(19);
-  practiceArray.push(45);
-  practiceArray.push(10);
-
-  //Use the pop method to remove an item
-  practiceArray.pop(); //I would expect this to remove value 10, change the length to 4, capacity remains the same, pointer -> 3
-  practiceArray.pop(); //I would expect this to remove value 45, change the length to 3, capacity remains the same, pointer -> 3
-  practiceArray.pop(); //I would expect this to remove value 19, change the length to 2, capacity remains the same, pointer -> 3
-
+  console.log("2. Explore the push() method");
+  pushArray.push(3);
   console.log(
-    "Array Class ->",
-    practiceArray,
-    "First item in array ->",
-    practiceArray.get(0)
+    "What is the length, capacity, and memory address of your array after push(3)",
+    pushArray
   );
+  pushArray.push(5);
+  pushArray.push(15);
+  pushArray.push(19);
+  pushArray.push(45);
+  pushArray.push(10);
 
-  //Remove remaining values to clear array.
-  practiceArray.pop();
-  practiceArray.pop();
-
-  //Add new item
-  practiceArray.push("tauhida");
-
-  //Print first items
   console.log(
-    "Array Class ->",
-    practiceArray,
-    "First item ->",
-    practiceArray.get(0)
+    "What is the length, capacity, and memory address of your array after pushing 5 more items into the array",
+    pushArray
   );
 }
 
-main();
+function explorePop() {
+  let popArray = new Array();
+
+  popArray.push(3);
+  popArray.push(5);
+  popArray.push(15);
+  popArray.push(19);
+  popArray.push(45);
+  popArray.push(10);
+
+  console.log("3. Explore the pop() method");
+  //Use the pop method to remove an item
+  popArray.pop(); //I would expect this to remove value 10, change the length to 4, capacity remains the same, pointer -> 3
+  popArray.pop(); //I would expect this to remove value 45, change the length to 3, capacity remains the same, pointer -> 3
+  popArray.pop(); //I would expect this to remove value 19, change the length to 2, capacity remains the same, pointer -> 3
+  console.log(
+    "What is the length, capacity, and address of your array after using pop() three times",
+    popArray
+  );
+}
+
+function understandArray() {
+  let understandArray = new Array();
+
+  console.log("4. Understanding more about how arrays work");
+  understandArray.push(1);
+
+  //Print first items
+  console.log("Print first item ->", understandArray.get(0));
+
+  //Remove remaining values to clear array.
+  understandArray.pop();
+
+  //Add new item
+  understandArray.push("tauhida");
+  console.log("Print tauhida->", understandArray.get(0));
+}
+
+function stringToUrl(string) {
+  console.log("5. URLify a string ->", string);
+
+  // Empty array to store parts of each item of string
+  let properUrl = [];
+
+  // The for loop will go through each character of ths string O(n)
+  for (let i = 0; i < string.length; i++) {
+    // If the loop encounters an empty space replace with %20
+    if (string[i] === " ") {
+      properUrl.push("%20");
+
+      // Otherwise push the character to the proper url array
+    } else {
+      properUrl.push(string[i]);
+    }
+  }
+  console.log(properUrl.join(""));
+  return properUrl.join("");
+}
+
+function filterArray(array) {
+  console.log("6. Filtering an array");
+
+  let arrayLessThanFive = [];
+
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] > 5) {
+    } else {
+      arrayLessThanFive.push(array[i]);
+    }
+  }
+  console.log("Input ->", array);
+  console.log("Output ->", arrayLessThanFive);
+  return arrayLessThanFive;
+}
+
+function sumArray(array) {
+  console.log("7. Max sum in the array");
+
+  let total = 0;
+
+  for (let i = 0; i < array.length; i++) {
+    total = total + array[i];
+  }
+
+  console.log("Input ->", array);
+  console.log("Output ->", total);
+}
+
+// implementArray();
+// explorePush();
+// explorePop();
+// understandArray();
+// stringToUrl("tauhida parveen");
+// stringToUrl("www.thinkful.com /tauh ida parv een/li>");
+// filterArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+// sumArray([4, 6, -3, 5, -2, 1]);
