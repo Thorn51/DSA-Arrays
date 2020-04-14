@@ -10,13 +10,13 @@ The various files in this exercise:
 - `array.js` -> An array class
 - `main.js` -> this file contains all of the drills completed in this module.
 
-It should be noted that there are console logs all over the code. In this case, those console logs are to assist learning the material.
+It should be noted that console logs all over the code. In this case, those console logs are to assist learning the material.
 
 In the `main.js` file all of the exercise functions are called at the end. They have been commented out in order to clear up the console. If you are using this to learn the material it is useful to uncomment those calls and see what is printed to the console.
 
 ## Drills
 
-Environment ->
+Environment -> https://thorn51.github.io/DSA-Arrays/
 
 The environment goes over the construction of the array class. It then has a series of drills that were attempted in this module.
 
