@@ -3,9 +3,483 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
     <title>DSA - Arrays</title>
   </head>
   <body>
-    <script src="main.js"></script>
+    <h1>Arrays</h1>
+    <p></p>
+    <section class="examples">
+      <h2>Initializing</h2>
+      <p>
+        The constructor method will initialize the array the with length, capacity and the pointer. The class builds the object for us and therefore initializes each new object with starting properties.
+        <ul>
+          <li><span class="bold">Length</span> - Number of items in array</li>
+          <li><span class="bold">Capacity</span> - The capacity of the array is the amount of space in memory set aside for the array. This is dictated by the size ratio and length of the array. Size ratio can be optimized by your needs. We set aside more contiguous memory than we need for a boost in performance, lessening the need to resize the array each time we add a new item.</li>
+          <li><span class="bold">Pointer (ptr)</span> - The pointer variable stores the memory address, or location of the array in the memory. The pointer is set to the first item in the array.</li>
+        </ul>
+      </p>
+      <pre>
+        <code>
+          class Array {
+            constructor() {
+                this.length = 0;
+                this._capacity = 0;
+                this.ptr = memory.allocate(this.length);
+            }
+          ...
+        </code>
+      </pre>
+      <h2>Push</h2>
+      <p>The push() method is used to add new items to the end of the array. As we add new items to the array we will need to consider the size. The push() method calls a private method (_resize) to alter the location and size in memory if needed. The resize method is described next.</p>
+      <ul>
+        <li><span class="bold">Resize</span> - change the size of allocated contiguous memory if needed.</li>
+        <li><span class="bold">Access Memory</span> - We need to define the location (address) in memory and assign the value.
+          <ul>
+            <li><span class="bold">Pointer</span> - This is the location of the new item in memory. We define the address of the new item by adding the array start address (this.ptr) to the length of the array (this.length). Defining the address this way is possible because it is stored in contiguous memory.</li>
+            <li><span class="bold">Value</span> - The new item being added to the array</li>
+          </ul>
+        <li><span class="bold">Length</span> - with the addition of a new item we need to add one to the constructor length. Always remember to maintain length when altering the array as it drives space consideration.</li>
+      </ul>
+      <pre>
+        <code>
+        ...
+          push(value) {
+            if (this.length >= this._capacity) {
+              this._resize((this.length + 1) * Array.SIZE_RATIO)
+            }
+            
+            memory.set(this.ptr + this.length, value);
+            this.length ++;
+          }
+        ...  
+        </code>
+      </pre>
+      <h2>Resize</h2>
+      <p>Resizing the array is not as simple as adding more memory to the end of the current array. This isn't a practical solution as often times the memory is already assigned. Because of that, when we resize the array we need to allocate a new chunk of contiguous memory, copy existing values to it, and then free the memory that contained the old array.</p>
+      <ul>
+        <li><span class="bold">Old Pointer</span> - This is the location of the current array this.ptr</li>
+        <li><span class="bold">Access Memory</span> - The memory module will return a new address for the starting location of the array.</li>
+        <li><span class="bold">Break Glass in Case of Emergency</span> - Throw an error if there is no space to allocate to the new array.</li>
+        <li><span class="bold">Copy Array</span> - In this step we are moving the values to the new location in memory.</li>
+        <li><span class="bold">Free Space</span> - In this step we are clearing the memory that contained the array before moving it.</li>
+      </ul>
+      <pre>
+        <code>
+        ...
+          _resize(size) {
+            const oldPtr = this.ptr;
+            this.ptr = memory.allocate(size);
+            if (this.ptr === null) {
+              throw new Error('Out of memory')
+            }
+            memory.copy(this.ptr, oldPtr, this.length)
+            memory.free(oldPtr)
+            this._capacity = size;
+          }
+        }
+        ...
+        </code>
+      </pre>
+      <p class="note"><span class="bold">NOTE:</span> The resize method is prefixed with an underscore. This is a naming convention in JavaScript and has no functional value. This naming convention is intended to notify developers not to touch the method.</p>
+      <h2>Retrieving Value</h2>
+      <p>The get() method returns the value of an item in the array by its index.</p>
+      <ul>
+        <li><span class="bold">Check Index</span> - If the index doesn't exist throw an error</li>
+        <li><span class="bold">Access Memory</span> - Provide the memory module the address of the value. The address is the address of the start of the array (this.ptr) plus the index of the value you are retrieving. Memory will return the value.</li>
+      </ul>
+      <pre>
+        <code>
+        ...
+        get(index) {
+          if (index < 0 || index >= this.length) {
+            thrown new Error('Index Error');
+          }
+          return memory.get(this.ptr + index)
+        }
+        ...
+        </code>
+      </pre>
+      <h2>Remove Item</h2>
+      <p>The pop() method removes an item from the end of the array.</p>
+      <ul>
+        <li><span class="bold">Check Array</span> - If the array has no items throw an error.</li>
+        <li><span class="bold">Access Memory</span> - Provide the memory module the address of the value. The address is the address of the start of the array (this.ptr) plus the index.</li>
+        <li><span class="bold">Length </span>- decrease the length of the array.</li>
+      </ul>
+      <pre>
+        <code>
+        ...
+        pop() {
+            if (this.length == 0) {
+                throw new Error('Index error');
+            }
+            const value = memory.get(this.ptr + this.length - 1);
+            this.length--;
+            return value;
+        }
+        ...
+        </code>
+      </pre>
+      <h2>Insert Values by Index</h2>
+      <p>The insert() method allow you to insert a value into the array by index. This requires the method to shift values.</p>
+      <ul>
+        <li><span class="bold">Check Index</span> - If the index doesn't exist throw an error.</li>
+        <li><span class="bold">Check Capacity</span> - If the length exceeds capacity then call the _resize(method) to allocate a new contiguous block of memory.</li>
+        <li><span class="bold">Access Memory</span>
+          <ul>
+            <li><span class="bold">Copy</span> - Shift values after the insertion to their new place in the array</li>
+            <li><span class="bold">Set</span> - add the new item to the array</li>
+          </ul>
+        </li>
+        <li><span class="bold">Length</span> - increase the length of the array.</li>
+      </ul>
+      <pre>
+        <code>
+        ...
+        insert(index, value) {
+            if (index < 0 || index >= this.length) {
+                throw new Error('Index error');
+            }
+
+            if (this.length >= this._capacity) {
+                this._resize((this.length + 1) * Array.SIZE_RATIO);
+            }
+
+            memory.copy(this.ptr + index + 1, this.ptr + index, this.length - index);
+            memory.set(this.ptr + index, value);
+            this.length++;
+        }
+        ...
+        </code>
+      </pre>
+      <h2>Removing Values by Index</h2>
+      <p>The remove() method allow you to remove a value from the array by index. Just like this insert by index, this requires the method to shift values.</p>
+      <ul>
+        <li><span class="bold">Check Index</span> - If the index doesn't exist throw an error.</li>
+        <li><span class="bold">Access Memory</span> - Shift the values around in the array.</li>
+        <li><span class="bold">Length</span> - Decrease the length of the array.</li>
+      </ul>
+      <pre>
+        <code>
+          ...
+          remove(index) {
+              if (index < 0 || index >= this.length) {
+                  throw new Error('Index error');
+              }
+              memory.copy(this.ptr + index, this.ptr + index + 1, this.length - index - 1);
+              this.length--;
+          }
+          ...
+        </code>
+      </pre>
+    </section>
+    <section class="drills">
+      <h2>Drills</h2>
+      <h3>1. Implement an Array Class from Scratch</h3>
+      <p class="question">
+        Walk through each step of implementing an array. Don't rush through this
+        by copying and pasting the code samples. After you've walked through it
+        and you understand the code of the Array class, hide the sample code and
+        try writing the Array class from scratch using the memory module
+        (memory.js) for allocating memory.
+      </p>
+      <h3>2. Explore the push() method</h3>
+      <p class="question">
+        Using the Array class you just created above, add an item to the array.
+        Use the following function:
+      </p>
+      <pre>
+        <code>
+          function explorePush() {
+            let pushArray = new Array();
+            //Set capacity of Array
+            Array.SIZE_RATIO = 3;
+            //Add an item to the array using the push method
+            console.log("2. Explore the push() method");
+            pushArray.push(3);
+            console.log(
+              "What is the length, capacity, and memory address of your array after push(3)",
+              pushArray
+            );
+            pushArray.push(5);
+            pushArray.push(15);
+            pushArray.push(19);
+            pushArray.push(45);
+            pushArray.push(10);
+          
+            console.log(
+              "What is the length, capacity, and memory address of your array after pushing 5 more items into the array",
+              pushArray
+            );
+          }
+        </code>
+      </pre>
+      <p>
+        What is the length, capacity and memory address of your array? Explain
+        the result of your program after adding the new lines of code.
+      </p>
+      <p class="answer"><span class="bold">Answer:</span> It is interesting to look at these side by side. You can tell that the _resize((3 + 1) * 3) method was called when we reached a length of 3. At this capacity we do not need to resize again until we reach a length of 12 items in the array. As a result of the resize the pointer has changed to the next contiguous block of memory. In this case it moved to three, but that is highly unlikely to be the real world outcome.</p>
+      <p class="note"><span class="bold">NOTE:</span> Open the dev tools to see the reuslt of the function in the console.</p>
+      <h3>3. Exploring the pop() method</h3>
+      <p class="question">
+        Add the following in the main function and then print the array:
+      </p>
+      <pre>
+        <code>
+        function explorePop() {
+          let popArray = new Array();
+        
+          popArray.push(3);
+          popArray.push(5);
+          popArray.push(15);
+          popArray.push(19);
+          popArray.push(45);
+          popArray.push(10);
+        
+          console.log("3. Explore the pop() method");
+          //Use the pop method to remove an item
+          popArray.pop(); //I would expect this to remove value 10, change the length to 4, capacity remains the same, pointer -> 3
+          popArray.pop(); //I would expect this to remove value 45, change the length to 3, capacity remains the same, pointer -> 3
+          popArray.pop(); //I would expect this to remove value 19, change the length to 2, capacity remains the same, pointer -> 3
+          console.log(
+            "What is the length, capacity, and address of your array after using pop() three times",
+            popArray
+          );
+        }
+        </code>
+      </pre>
+      <p>
+        What is the length, capacity, and address of your array? Explain the
+        result of your program after adding the new lines of code.
+      </p>
+      <p class="answer"><span class="bold">Answer:</span> This is as expected. The length is reduced by one after each pop(). The capacity and pointer remain the same. I think careful consideration is needed for the size ratio. In this case the capacity is trivial, but with large datasets this could become a problem as large chunks of contiguous data could be wasted. Perhaps setting up some sort of break point to call resize would be needed in that case.</p>
+      <p class="note"><span class="bold">NOTE:</span> Open the dev tools to see the reuslt of the function in the console.</p>
+      <h3>4. Understanding more about how arrays work</h3>
+      <p class="question">Print the 1st item in the array arr.</p>
+      <p class="question">
+        Empty the array and add just 1 item: arr.push("tauhida")
+      </p>
+      <p class="question">
+        Print this 1 item that you just added. What is the result? Can you
+        explain your result?
+      </p>
+      <p class="question">
+        What is the purpose of the _resize() function in your Array class?
+      </p>
+      <pre>
+        <code>
+        function understandArray() {
+          let understandArray = new Array();
+        
+          console.log("4. Understanding more about how arrays work");
+          understandArray.push(1);
+        
+          //Print first items
+          console.log("Print first item ->", understandArray.get(0));
+        
+          //Remove remaining values to clear array.
+          understandArray.pop();
+        
+          //Add new item
+          understandArray.push("tauhida");
+          console.log("Print tauhida->", understandArray.get(0));
+        }
+        </code>
+      </pre>
+      <div class="answer">
+        <p><span class="bold">Answer:</span></p>
+        <ol>
+        <li>When you retrieve 'tauhida' using the get(0) method NaN (Not-A-Number) is returned. This took a lot of console logs at various points in the array module and memory module to uncover. The memory module that was provided for these drills uses Float64Array to mimic memory. MDN - 'The Float64Array typed array represents an array of 64-bit floating point numbers (corresponding to the C double data type) in the platform byte order.' When a string is pushed into the Float64Array it is converted to NaN. Therefore, retrieving a string from the Float64Array will result in NaN.</li>
+        <li>The _resize method is called when the length of the array is equal to or greater than the capacity. If _resize is called then the memory module is called to set aside a new contiguous block of memory and the array is copied and moved to this location. The _resize method then calls on the memory module to free the old block of memory.</li>
+      </ol></div>
+      <p class="note"><span class="bold">NOTE:</span> Open the dev tools to see the reuslt of the function in the console. If you are working through these drills I recommend placing a console log in the get method of the memory module - console.log("Memory module get method ->", this.memory);.</p>
+      <h3>5. URLify a string</h3>
+      <p class="question">
+        A common mistake users make when they type in an URL is to put spaces
+        between words or letters. A solution that developers can use to solve
+        this problem is to replace any spaces with a %20. Write a method that
+        takes in a string and replaces all its empty spaces with a %20. Your
+        algorithm can only make 1 pass through the string. Examples of input and
+        output for this problem can be
+      </p>
+      <ul>
+        <li>Input: tauhida parveen</li>
+        <li>Output: tauhida%20parveen</li>
+      </ul>
+      <ul>
+        <li>Input: www.thinkful.com /tauh ida parv een</li>
+        <li>Output: www.thinkful.com%20/tauh%20ida%20parv%20een/li></li>
+      </ul>
+      <pre>
+        <code>
+          function stringToUrl(string) {
+            console.log("5. URLify a string ->", string);
+          
+            // Empty array to store parts of each item of string
+            let properUrl = [];
+          
+            // The for loop will go through each character of ths string O(n)
+            for (let i = 0; i < string.length; i++) {
+              // If the loop encounters an empty space replace with %20
+              if (string[i] === " ") {
+                properUrl.push("%20");
+          
+                // Otherwise push the character to the proper url array
+              } else {
+                properUrl.push(string[i]);
+              }
+            }
+            console.log(properUrl.join(""));
+            return properUrl.join("");
+          }
+        </code>
+      </pre>
+      <div class="answer">
+        <p><span class="bold">Time complexity:</span> Linear Time Complexity O(n). The longer the string the more time it takes to loop through.</p>
+        <p><span class="bold">Optimization:</span> Split the string prior to the for loop? This would shorten the time. Instead of going through each character of the string it would go through each word in the array.</p>
+      </div>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>6. Filtering an array</h3>
+      <p class="question">
+        Imagine you have an array of numbers. Write an algorithm to remove all
+        numbers less than 5 from the array. DO NOT use Array's built-in
+        .filter() method here; write the algorithm from scratch.
+      </p>
+      <pre>
+        <code>
+          function filterArray(array) {
+            console.log("6. Filtering an array");
+          
+            let arrayLessThanFive = [];
+          
+            for (let i = 0; i < array.length; i++) {
+              if (array[i] > 5) {
+              } else {
+                arrayLessThanFive.push(array[i]);
+              }
+            }
+            console.log("Input ->", array);
+            console.log("Output ->", arrayLessThanFive);
+            return arrayLessThanFive;
+          }
+        </code>
+      </pre>
+      <div class="answer">
+        <p><span class="bold">Time complexity:</span> Linear Time Complexity O(n). As the number of items in the array increases the for loop takes more time to process the array.</p>
+        <p><span class="bold">Optimization:</span> Divide and Conquer. Split the array in half and ignore the parts that are not needed. This would require an array that is sorted.</p>
+      </div>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>Max sum in the array</h3>
+      <p class="question">
+        You are given an array containing positive and negative integers. Write
+        an algorithm which will find the largest sum in a continuous sequence.
+      </p>
+      <ul>
+        <li>Input: [4, 6, -3, 5, -2, 1]</li>
+        <li>Output: 12</li>
+      </ul>
+      <pre>
+        <code>
+        </code>
+      </pre>
+      <p class="answer"><span class="bold">Answer:</span></p>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>8. Merge Arrays</h3>
+      <p class="question">
+        Imagine you have 2 arrays which have already been sorted. Write an
+        algorithm to merge the 2 arrays into a single array, which should also
+        be sorted.
+      </p>
+      <ul>
+        <li>Input:[1, 3, 6, 8, 11] and [2, 3, 5, 8, 9, 10]</li>
+        <li>Output:[1, 2, 3, 3, 5, 6, 8, 8, 9, 10, 11]</li>
+      </ul>
+      <pre>
+        <code>
+        </code>
+      </pre>
+      <p class="answer"><span class="bold">Answer:</span></p>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>9. Remove characters</h3>
+      <p class="question">
+        Write an algorithm that deletes given characters from a string. For
+        example, given a string of "Battle of the Vowels: Hawaii vs. Grozny" and
+        the characters to be removed are "aeiou", the algorithm should transform
+        the original string to "Bttl f th Vwls: Hw vs. Grzny". Do not use
+        Javascript's filter, split, or join methods.
+      </p>
+      <ul>
+        <li>Input:'Battle of the Vowels: Hawaii vs. Grozny', 'aeiou'</li>
+        <li>Output: 'Bttl f th Vwls: Hw vs. Grzny'</li>
+      </ul>
+      <pre>
+        <code>
+        </code>
+      </pre>
+      <p class="answer"><span class="bold">Answer:</span></p>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>10. Products</h3>
+      <p class="question">
+        Given an array of numbers, write an algorithm to find out the products
+        of every other number except the number at each index.
+      </p>
+      <ul>
+        <li>Input:[1, 3, 9, 4]</li>
+        <li>Output:[108, 36, 12, 27]</li>
+      </ul>
+      <pre>
+        <code>
+        </code>
+      </pre>
+      <p class="answer"><span class="bold">Answer:</span></p>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>11. 2D array</h3>
+      <p class="question">
+        Write an algorithm which searches through a 2D array, and whenever it
+        finds a 0 should set the entire row and column to 0.
+      </p>
+      <pre>
+        <code>
+          Input:
+            [[1,0,1,1,0],
+            [0,1,1,1,0],
+            [1,1,1,1,1],
+            [1,0,1,1,1],
+            [1,1,1,1,1]];
+          
+          Output:
+            [[0,0,0,0,0],
+            [0,0,0,0,0],
+            [0,0,1,1,0],
+            [0,0,0,0,0],
+            [0,0,1,1,0]];
+        </code>
+      </pre>
+      <p class="answer"><span class="bold">Answer:</span></p>
+      <p class="note"><span class="bold">NOTE:</span></p>
+      <h3>12. String rotation</h3>
+      <p class="question">
+        Given 2 strings, str1 and str2, write a program that checks if str2 is a
+        rotation of str1.
+      </p>
+      <ul>
+        <li>Input: amazon, azonma</li>
+        <li>Output: False</li>
+      </ul>
+      <ul>
+        <li>Input: amazon, azonam</li>
+        <li>Output: true</li>
+      </ul>
+      <pre>
+        <code>
+        </code>
+      </pre>
+      <p class="answer"><span class="bold">Answer:</span></p>
+      <p class="note"><span class="bold">NOTE:</span></p>
+    </section>
+    <script type="module" src="memory.js"></script>
+    <script type="module" src="array.js"></script>
+    <script type='module' src="main.js"></script>
   </body>
 </html>
